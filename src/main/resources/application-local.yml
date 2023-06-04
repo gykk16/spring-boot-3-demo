@@ -1,0 +1,95 @@
+# =====================================================================================================================
+# Spring Boot Config - LOCAL
+# =====================================================================================================================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  devtools:
+    livereload:
+      enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: 'create-drop'
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+        order_updates: true
+        order_inserts: true
+        jdbc:
+          batch_size: 100
+        # Non-temporary table bulk mutation strategy
+        query:
+#          mutation_strategy: org.hibernate.query.sqm.mutation.internal.inline.InlineMutationStrategy
+    open-in-view: false
+
+# ==============================
+# jwt
+# ==============================
+jwt:
+  key: 9faa372517ac1d389758d3750fc07acf00f542277f26fec1ce4593e93f64e338
+
+# ==============================
+# server
+# ==============================
+server:
+  # error
+  error:
+    include-binding-errors: never
+    include-message: never
+    include-stacktrace: never
+    include-exception: false
+    whitelabel:
+      enabled: false
+
+# =====================================================================================================================
+# logging
+# =====================================================================================================================
+
+logging:
+  level:
+    dev.glory.demo: DEBUG
+
+    # hikari
+#    com.zaxxer.hikari: TRACE
+
+    # JdbcTemplate Queries
+    org.springframework.jdbc.core.JdbcTemplate: TRACE
+    org.springframework.jdbc.core.StatementCreatorUtils: TRACE
+
+    # hibernate
+#    org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
+#    org.hibernate.resource.transaction: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL_SLOW: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+  # 패턴
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%5.5p) [%15.15t] [%clr(%-36.36X{REQ_TRACE_KEY}){magenta}] --- %clr(%-40.40logger{39}){cyan} : %m%n%throwable"
+#    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5.5p [%15.15t] [%-36.36X{REQ_TRACE_KEY}] --- %-40.40logger{39} : %m%n%throwable"
+    # 파일
+#    file:
+#      path: logs
+#      name: ${logging.file.path}/output.log
+#    logback:
+#      rollingpolicy:
+#        # 롤링
+#        max-history: 30
+#        max-file-size: 100MB
+#        file-name-pattern: ${logging.file.path}/output_%d{yyyyMMdd}_%i.log
+  charset:
+    file: UTF-8
+    console: UTF-8

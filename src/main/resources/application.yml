@@ -1,0 +1,61 @@
+# =====================================================================================================================
+# Spring Boot Profile Group Config
+# =====================================================================================================================
+spring:
+  profiles:
+    group:
+      default:
+        - common
+        - local
+      local:
+        - local
+      dev:
+      prod:
+
+---
+# =====================================================================================================================
+# Application Info - properties ???? ?? build.gradle ???? ?? ? ??.
+# =====================================================================================================================
+info.app.version: 0.0.1
+info:
+  app:
+    name: demo pet project
+    name-kor: ?? ? ????
+    group: dev-glory
+    alias: ${info.app.group}-demo
+
+
+# ==============================
+# spring
+# ==============================
+spring:
+  config:
+    activate:
+      on-profile: common
+  output:
+    ansi:
+      enabled: always
+
+
+# ==============================
+# rsa
+# ==============================
+rsa:
+  public-key: classpath:certs/public.pem
+  private-key: classpath:certs/private.pem
+
+# ==============================
+# server
+# ==============================
+server:
+  # servlet
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+    session:
+      # ?? ????: 1?? (3600?)
+      timeout: 3600
+      tracking-modes: cookie
+  # graceful ?? ??
+  shutdown: graceful
