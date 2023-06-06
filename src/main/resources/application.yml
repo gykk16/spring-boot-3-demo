@@ -14,13 +14,13 @@ spring:
 
 ---
 # =====================================================================================================================
-# Application Info - properties ???? ?? build.gradle ???? ?? ? ??.
+# Application Info - properties 방식으로 해야 build.gradle 파일에서 읽을 수 있다...
 # =====================================================================================================================
 info.app.version: 0.0.1
 info:
   app:
     name: demo pet project
-    name-kor: ?? ? ????
+    name-kor: 데모 프로젝트
     group: dev-glory
     alias: ${info.app.group}-demo
 
@@ -59,9 +59,5 @@ server:
     encoding:
       charset: UTF-8
       force: true
-    session:
-      # ?? ????: 1?? (3600?)
-      timeout: 3600
-      tracking-modes: cookie
-  # graceful ?? ??
+  # graceful 종료 활성
   shutdown: graceful
