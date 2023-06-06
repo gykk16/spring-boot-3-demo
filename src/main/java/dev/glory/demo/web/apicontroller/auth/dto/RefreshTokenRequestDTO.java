@@ -2,6 +2,8 @@ package dev.glory.demo.web.apicontroller.auth.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import jakarta.validation.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Getter
 public class RefreshTokenRequestDTO {
 
+    @NotBlank
     private String refreshToken;
 }

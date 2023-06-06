@@ -12,6 +12,8 @@ public enum AuthErrorCode implements BaseResponseCode {
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, false, "ERA002", "사용자를 찾을 수 없습니다."),
 
     EXISTING_USER(HttpStatus.BAD_REQUEST, false, "ERA101", "사용 불가능한 username 입니다."),
+
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, false, "ERA201", "접근 권한이 없습니다."),
     ;
 
     private final HttpStatus status;

@@ -2,6 +2,7 @@ package dev.glory.demo.system.config.security.jwt;
 
 
 import static dev.glory.demo.common.util.LogStringUtil.logTitle;
+import static dev.glory.demo.system.config.security.jwt.exception.TokenCode.NO_TOKEN;
 import static dev.glory.demo.system.config.security.jwt.exception.TokenCode.TOKEN_VALIDATION_ERROR;
 
 import java.io.IOException;
@@ -18,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import dev.glory.demo.common.constant.ApplicationConst;
 import dev.glory.demo.system.config.security.jwt.exception.CustomJwtException;
+import dev.glory.demo.system.config.security.role.Role;
 import org.slf4j.MDC;
+import org.springframework.context.support.BeanDefinitionDsl;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,24 +53,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String username = null;
         try {
-            final String jwtToken = resolveToken(request).orElseThrow();
+            final String jwtToken = resolveToken(request).orElseThrow(() -> new CustomJwtException(NO_TOKEN));
 
             Jwt jwt = jwtService.decodeToken(jwtToken);
             username = jwt.getSubject();
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                String role = jwtService.extractRole(jwtToken);
+                String roleName = jwtService.extractRole(jwt);
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         username,
                         null,
-                        List.of(new SimpleGrantedAuthority(role))
+                        Role.valueOf(roleName).getAuthorities()
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                log.info("# ==> Auth Info , username = {} , role = {}", username, role);
+                log.info("# ==> Auth Info , username = {} , role = {}", username, Role.valueOf(roleName).getAuthorities());
             }
+
+        } catch (CustomJwtException e) {
+            request.setAttribute("exception", e);
+
         } catch (JwtException e) {
             request.setAttribute("exception", new CustomJwtException(TOKEN_VALIDATION_ERROR, e.getMessage()));
 

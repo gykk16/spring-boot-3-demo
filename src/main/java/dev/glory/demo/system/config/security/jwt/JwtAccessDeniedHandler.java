@@ -11,28 +11,18 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.glory.demo.common.RestResponseEntity;
+import dev.glory.demo.common.code.AuthErrorCode;
 import dev.glory.demo.common.code.BaseResponseCode;
-import dev.glory.demo.system.config.security.jwt.exception.CustomJwtException;
-import dev.glory.demo.system.config.security.jwt.exception.TokenCode;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.stereotype.Component;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
-@Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException authException) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+            AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-        Exception exception = (Exception)request.getAttribute("exception");
-
-        if (exception instanceof CustomJwtException customJwtException) {
-            writeResponse(response, customJwtException.getCode(), customJwtException.getMessage());
-            return;
-        }
-
-        writeResponse(response, TokenCode.TOKEN_ERROR, authException.getMessage());
+        writeResponse(response, AuthErrorCode.ACCESS_DENIED, accessDeniedException.getMessage());
     }
 
     private static void writeResponse(HttpServletResponse response, BaseResponseCode code, String message)

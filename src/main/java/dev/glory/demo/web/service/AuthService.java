@@ -1,20 +1,23 @@
 package dev.glory.demo.web.service;
 
-import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
 
 import dev.glory.demo.common.code.AuthErrorCode;
 import dev.glory.demo.common.exception.BizRuntimeException;
 import dev.glory.demo.system.config.security.jwt.JwtService;
+import dev.glory.demo.system.config.security.jwt.exception.CustomJwtException;
+import dev.glory.demo.system.config.security.jwt.exception.TokenCode;
 import dev.glory.demo.web.apicontroller.auth.dto.AuthenticationRequestDTO;
 import dev.glory.demo.web.apicontroller.auth.dto.AuthenticationResponseDTO;
 import dev.glory.demo.web.apicontroller.auth.dto.RegisterRequestDTO;
+import dev.glory.demo.web.domain.RefreshToken;
 import dev.glory.demo.web.domain.User;
+import dev.glory.demo.web.repository.RefreshTokenRepository;
 import dev.glory.demo.web.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,15 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtService            jwtService;
-    private final UserRepository        userRepository;
-    private final PasswordEncoder       passwordEncoder;
-    private final EntityManager         em;
+    private final AuthenticationManager  authenticationManager;
+    private final JwtService             jwtService;
+    private final UserRepository         userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordEncoder        passwordEncoder;
 
 
     @Transactional
-    public String register(RegisterRequestDTO registerRequestDTO) {
+    public AuthenticationResponseDTO register(RegisterRequestDTO registerRequestDTO) {
 
         boolean exists = userRepository.existsByUsername(registerRequestDTO.getUsername());
         if (exists) {
@@ -48,22 +51,48 @@ public class AuthService {
                 .role(registerRequestDTO.getRole())
                 .build();
 
-        return userRepository.save(user).getUsername();
+        userRepository.save(user);
+
+        return getAuthenticationResponse(user);
     }
 
     @Transactional
     public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO requestDTO) {
-        Authentication authentication = authenticationManager.authenticate(
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(requestDTO.getUsername(), requestDTO.getPassword())
         );
 
-        return getAuthenticationResponse(authentication);
+        User user = userRepository.findByUsername(requestDTO.getUsername()).orElseThrow();
+
+        return getAuthenticationResponse(user);
     }
 
-    private AuthenticationResponseDTO getAuthenticationResponse(Authentication authentication) {
+    @Transactional
+    public AuthenticationResponseDTO validateRefreshToken(String refreshToken) {
+        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new CustomJwtException(TokenCode.REFRESH_TOKEN_NOT_FOUND));
 
-        String accessToken = jwtService.generateToken(authentication);
-        String refreshToken = null; // TODO: implement refresh token
+        // 만료된 토큰이면 삭제
+        if (token.getExpireDt().isBefore(LocalDateTime.now())) {
+            refreshTokenRepository.deleteByUser(token.getUser());
+            throw new CustomJwtException(TokenCode.REFRESH_TOKEN_EXPIRED);
+        }
+
+        User user = userRepository.findByUsername(token.getUser().getUsername()).orElseThrow();
+
+        return getAuthenticationResponse(user);
+    }
+
+    @Transactional
+    public void deleteRefreshToken(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        refreshTokenRepository.deleteByUser(user);
+    }
+
+    private AuthenticationResponseDTO getAuthenticationResponse(User user) {
+
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
         return new AuthenticationResponseDTO(accessToken, refreshToken);
     }

@@ -19,6 +19,7 @@ spring:
       enabled: true
 
   jpa:
+    database: h2
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: 'create-drop'
@@ -34,12 +35,6 @@ spring:
         query:
 #          mutation_strategy: org.hibernate.query.sqm.mutation.internal.inline.InlineMutationStrategy
     open-in-view: false
-
-# ==============================
-# jwt
-# ==============================
-jwt:
-  key: 9faa372517ac1d389758d3750fc07acf00f542277f26fec1ce4593e93f64e338
 
 # ==============================
 # server

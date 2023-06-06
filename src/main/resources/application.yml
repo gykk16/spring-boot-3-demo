@@ -38,11 +38,17 @@ spring:
 
 
 # ==============================
-# rsa
+# application
 # ==============================
-rsa:
-  public-key: classpath:certs/public.pem
-  private-key: classpath:certs/private.pem
+application:
+  security:
+    jwt:
+      access-token-expire-min: 60
+      refresh-token-expire-min: 1440
+    rsa:
+      public-key: classpath:certs/public.pem
+      private-key: classpath:certs/private.pem
+
 
 # ==============================
 # server
