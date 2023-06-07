@@ -9,6 +9,7 @@ Spring Boot 3.1 기준 프로젝트.
 - JWT authentication with RSA key pair
 - Refresh token
 - Exception handling
+- Http client with Retrofit2
 
 
 ## Technologies
@@ -18,3 +19,4 @@ Spring Boot 3.1 기준 프로젝트.
 - Spring Security
 - JSON Web Token (JWT)
 - H2 Database
+- Retrofit2
