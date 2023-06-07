@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+external:
+  github:
+    host-url: https://api.github.com
+    users: /users
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod

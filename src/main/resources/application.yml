@@ -49,6 +49,13 @@ application:
       public-key: classpath:certs/public.pem
       private-key: classpath:certs/private.pem
 
+  http:
+    max-idle-connections-sec: 5
+    keep-alive-duration-sec: 60
+    connect-timeout-sec: 5
+    read-timeout-sec: 5
+    write-timeout-sec: 5
+    call-timeout-sec: 5
 
 # ==============================
 # server
